@@ -2,12 +2,33 @@ import 'package:flutter/material.dart';
 import './split_bill_screen.dart';
 
 class BillSplitterState extends State<BillSplitter> {
+  String billName = "Untitled";
   double subTotalAmount = 0.0;
   double serviceChargeAmount = 0.0;
   double taxAmount = 0.0;
   double totalAmount = 0.0;
-  String billName = "Untitled";
   int personCount = 1;
+
+  final TextEditingController _billNameTextFieldController = new TextEditingController();
+  final TextEditingController _subTotalTextFieldController = new TextEditingController();
+  final TextEditingController _serviceChargeTextFieldController = new TextEditingController();
+  final TextEditingController _taxTextFieldController = new TextEditingController();
+  final TextEditingController _personTextFieldController = new TextEditingController();
+  
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _billNameTextFieldController.dispose();
+    _subTotalTextFieldController.dispose();
+    _serviceChargeTextFieldController.dispose();
+    _taxTextFieldController.dispose();
+    _personTextFieldController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,87 +44,22 @@ class BillSplitterState extends State<BillSplitter> {
       totalAmount = subTotalAmount + computeServiceCharge() + computeTax();
     }
 
-    TextField billNameField = new TextField(
-        decoration: new InputDecoration(labelText: "Name", labelStyle: TextStyle(fontSize: 20)),
-        keyboardType: TextInputType.text,
-        style: TextStyle(fontSize: 20),
-        onChanged: (String value) {
-          setState(() {
-            billName = value.trim().length == 0 ? "Untitled" : value;
-          });
-        },
-    );
-    
-    TextField billAmountField = new TextField(
-        decoration: new InputDecoration(labelText: "Subtotal", labelStyle: TextStyle(fontSize: 20)),
-        keyboardType: TextInputType.number,
-        style: TextStyle(fontSize: 20),
-        onChanged: (String value) {
-          setState(() {
-            try {
-              subTotalAmount = double.parse(value);
-            } catch (exception) {
-              subTotalAmount = 0.0;
-            }
-            updateTotalAmount();
-          });
-        },
-    );
+    void clearFields() {
+      setState(() {
+        subTotalAmount = 0.0;
+        billName = "Untitled";
+        serviceChargeAmount = 0.0;
+        taxAmount = 0.0;
+        personCount = 0;
+        totalAmount = 0;
 
-    TextField serviceChargeField = new TextField(
-        decoration: new InputDecoration(labelText: "Service Charge (%)", labelStyle: TextStyle(fontSize: 20)),
-        keyboardType: TextInputType.number,
-        style: TextStyle(fontSize: 20),
-        onChanged: (String value) {
-          setState(() {
-            try {
-              serviceChargeAmount = double.parse(value);
-            } catch (exception) {
-              serviceChargeAmount = 0.0;
-            }
-            updateTotalAmount();
-          });
-        });
-
-    TextField taxAmountField = new TextField(
-        decoration: new InputDecoration(labelText: "Tax Rate (%)", labelStyle: TextStyle(fontSize: 20)),
-        keyboardType: TextInputType.number,
-        style: TextStyle(fontSize: 20),
-        onChanged: (String value) {
-          setState(() {
-            try {
-              taxAmount = double.parse(value);
-            } catch (exception) {
-              taxAmount = 0.0;
-            }
-            updateTotalAmount();
-          });
-        });
-
-    TextField personCountField = new TextField(
-        decoration: new InputDecoration(labelText: "No. of people", labelStyle: TextStyle(fontSize: 20)),
-        keyboardType: TextInputType.number,
-        style: TextStyle(fontSize: 20),
-        onChanged: (String value) {
-          try {
-            personCount = int.parse(value);
-          } catch (exception) {
-            personCount = 1;
-          }
-        });
-
-    MaterialButton calculateEquallyButton = new MaterialButton(
-        child: new Text("Split Equally"),
-        color: Colors.red,
-        textColor: Colors.white,
-        onPressed: () {
-          String formattedTotal = totalAmount.toStringAsFixed(2);
-
-          AlertDialog dialog = new AlertDialog(
-              content: new Text("Total is $formattedTotal per person"));
-
-          showDialog(context: context, builder: (BuildContext context) => dialog);
-        });
+        _billNameTextFieldController.clear();
+        _subTotalTextFieldController.clear();
+        _serviceChargeTextFieldController.clear();
+        _taxTextFieldController.clear();
+        _personTextFieldController.clear(); 
+      });
+    }
 
     void _startSplitByPerson() {
       var splitData = {
@@ -121,11 +77,106 @@ class BillSplitterState extends State<BillSplitter> {
       );
     }
 
+    TextField billNameField = new TextField(
+      controller: _billNameTextFieldController,
+      decoration: new InputDecoration(labelText: "Name", labelStyle: TextStyle(fontSize: 20)),
+      keyboardType: TextInputType.text,
+      style: TextStyle(fontSize: 20),
+      onChanged: (String value) {
+        setState(() {
+          billName = value.trim().length == 0 ? "Untitled" : value.trim();
+        });
+      },
+    );
+    
+    TextField billAmountField = new TextField(
+      controller: _subTotalTextFieldController,
+      decoration: new InputDecoration(labelText: "Subtotal", labelStyle: TextStyle(fontSize: 20)),
+      keyboardType: TextInputType.number,
+      style: TextStyle(fontSize: 20),
+      onChanged: (String value) {
+        setState(() {
+          try {
+            subTotalAmount = double.parse(value.trim());
+          } catch (exception) {
+            subTotalAmount = 0.0;
+          }
+          updateTotalAmount();
+        });
+      },
+    );
+
+    TextField serviceChargeField = new TextField(
+      controller: _serviceChargeTextFieldController,
+      decoration: new InputDecoration(labelText: "Service Charge / Tip (%)", labelStyle: TextStyle(fontSize: 20)),
+      keyboardType: TextInputType.number,
+      style: TextStyle(fontSize: 20),
+      onChanged: (String value) {
+        setState(() {
+          try {
+            serviceChargeAmount = double.parse(value);
+          } catch (exception) {
+            serviceChargeAmount = 0.0;
+          }
+          updateTotalAmount();
+        });
+      });
+
+    TextField taxAmountField = new TextField(
+      controller: _taxTextFieldController,
+      decoration: new InputDecoration(labelText: "Tax Rate (%)", labelStyle: TextStyle(fontSize: 20)),
+      keyboardType: TextInputType.number,
+      style: TextStyle(fontSize: 20),
+      onChanged: (String value) {
+        setState(() {
+          try {
+            taxAmount = double.parse(value);
+          } catch (exception) {
+            taxAmount = 0.0;
+          }
+          updateTotalAmount();
+        });
+      });
+
+    TextField personCountField = new TextField(
+      controller: _personTextFieldController,
+      decoration: new InputDecoration(labelText: "No. of people", labelStyle: TextStyle(fontSize: 20)),
+      keyboardType: TextInputType.number,
+      style: TextStyle(fontSize: 20),
+      onChanged: (String value) {
+        try {
+          personCount = int.parse(value);
+        } catch (exception) {
+          personCount = 1;
+        }
+        updateTotalAmount();
+      });
+
+    MaterialButton calculateEquallyButton = new MaterialButton(
+      child: new Text("Split Equally"),
+      color: Colors.red,
+      textColor: Colors.white,
+      onPressed: () {
+        String formattedTotal = (totalAmount / personCount).toStringAsFixed(2);
+
+        AlertDialog dialog = new AlertDialog(
+            content: new Text("Total is $formattedTotal per person"));
+
+        showDialog(context: context, builder: (BuildContext context) => dialog);
+      });
+
+
     MaterialButton splitByPersonButton = new MaterialButton(
-        child: new Text("Split By Person"),
-        color: Colors.red,
-        textColor: Colors.white,
-        onPressed: _startSplitByPerson);
+      child: new Text("Split By Person"),
+      color: Colors.red,
+      textColor: Colors.white,
+      onPressed: _startSplitByPerson);
+
+    MaterialButton clearButton = new MaterialButton(
+      child: new Text("clear"),
+      color: Colors.grey,
+      textColor: Colors.black,
+      onPressed: clearFields);
 
     Container summarySubtotal = Container(
       child: Column(
@@ -143,31 +194,35 @@ class BillSplitterState extends State<BillSplitter> {
     );
 
     Container container = new Container(
-        padding: const EdgeInsets.all(15.0),
-        child: new Column(
-            children: [
-              billNameField,
-              billAmountField,
-              serviceChargeField,
-              taxAmountField,
-              personCountField,
-              Container(
-                alignment: Alignment(0.0, 0.0),
-                child: Row(children: <Widget>[
-                  new Expanded(child: Container(),),
-                  calculateEquallyButton,
-                  Padding(
-                    padding: EdgeInsets.only(left: 5.0),
-                  ), 
-                  splitByPersonButton,
-                  new Expanded(child: Container(),),
-                ],),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 15.0),
-              ),
-              summarySubtotal
-            ]));
+      padding: const EdgeInsets.all(15.0),
+      child: new Column(
+          children: [
+            billNameField,
+            billAmountField,
+            serviceChargeField,
+            taxAmountField,
+            personCountField,
+            Container(
+              alignment: Alignment(0.0, 0.0),
+              child: Row(children: <Widget>[
+                new Expanded(child: Container(),),
+                calculateEquallyButton,
+                Padding(
+                  padding: EdgeInsets.only(left: 5.0),
+                ), 
+                splitByPersonButton,
+                Padding(
+                  padding: EdgeInsets.only(left: 5.0),
+                ), 
+                clearButton,
+                new Expanded(child: Container(),),
+              ],),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 15.0),
+            ),
+            summarySubtotal
+          ]));
 
     AppBar appBar = new AppBar(title: new Text("BillSplitter"), backgroundColor: Colors.red,);
 
