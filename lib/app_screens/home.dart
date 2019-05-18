@@ -110,7 +110,9 @@ class BillSplitterState extends State<BillSplitter> {
         "subTotalAmount": subTotalAmount,
         "serviceChargeAmount": serviceChargeAmount,
         "taxAmount": taxAmount,
-        "personCount": personCount
+        "personCount": personCount,
+        "serviceChargeValue": computeServiceCharge(),
+        "taxValue": computeTax(),
       };
       Navigator.of(context).push(
         MaterialPageRoute<void>(
