@@ -1,6 +1,7 @@
 # billsplitter
 
 A new Flutter project.
+run `flutter packages get` after cloning this repo
 
 ## Getting Started
 
