@@ -90,15 +90,33 @@ class BillSplitterState extends State<BillSplitter> {
           showDialog(context: context, builder: (BuildContext context) => dialog);
         });
 
+      Container splitByPersonContainer = new Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Text("HELLO")
+      );
+
+      void _startSplitByPerson() {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text('Split by items'),
+                  backgroundColor: Colors.red,
+                ),
+                body: splitByPersonContainer,
+              ); 
+            },
+          ),
+        );
+      }
+
     MaterialButton splitByPersonButton = new MaterialButton(
         child: new Text("Split By Person"),
         color: Colors.red,
         textColor: Colors.white,
-        onPressed: () {
-          AlertDialog dialog = new AlertDialog(
-                content: new Text("TODO"));
-          showDialog(context: context, builder: (BuildContext context) => dialog);
-        });
+        onPressed: _startSplitByPerson);
+
 
     Container container = new Container(
         padding: const EdgeInsets.all(16.0),
