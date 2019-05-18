@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 
-class SplitBillScreen extends StatelessWidget {
-  final Map data;
+class SplitItem {
+  final String name;
+  final double cost;
 
-  SplitBillScreen({Key key, @required this.data}) : super(key: key);
+  SplitItem(this.name, this.cost);
+}
 
+class SplitBillScreenState extends State<SplitBillScreen> {
   @override
   Widget build(BuildContext context) {
-    final double subTotalAmount = data["subTotalAmount"];
-    final double serviceChargeAmount = data["serviceChargeAmount"];
-    final double taxAmount = data["taxAmount"];
-    final int personCount = data["personCount"];
+    final List<SplitItem> splitItems = <SplitItem>[];
+    double subTotalAmount = widget.splitData["subTotalAmount"];
+    final double serviceChargeAmount = widget.splitData["serviceChargeAmount"];
+    final double taxAmount = widget.splitData["taxAmount"];
+    final int personCount = widget.splitData["personCount"];
 
     String formattedSubTotalAmount = subTotalAmount.toStringAsFixed(2);
 
@@ -31,4 +35,13 @@ class SplitBillScreen extends StatelessWidget {
     Scaffold scaffold = new Scaffold(appBar: appBar, body: container);
     return scaffold;
   }
+}
+
+class SplitBillScreen extends StatefulWidget {
+  final Map splitData;
+
+  SplitBillScreen({Key key, @required this.splitData}) : super(key: key);
+
+  @override
+  SplitBillScreenState createState() => SplitBillScreenState();
 }

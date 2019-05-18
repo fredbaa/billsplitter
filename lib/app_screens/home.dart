@@ -83,7 +83,7 @@ class BillSplitterState extends State<BillSplitter> {
       };
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (context) => SplitBillScreen(data: splitData),
+          builder: (context) => SplitBillScreen(splitData: splitData),
         ),
       );
     }
@@ -124,7 +124,6 @@ class BillSplitterState extends State<BillSplitter> {
     return scaffold;
   }
 }
-
 
 class BillSplitter extends StatefulWidget {
   @override
