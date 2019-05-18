@@ -157,7 +157,11 @@ class BillSplitterState extends State<BillSplitter> {
       color: Colors.red,
       textColor: Colors.white,
       onPressed: () {
-        String formattedTotal = (totalAmount / personCount).toStringAsFixed(2);
+        String formattedTotal = "0";
+
+        if (personCount != 0) {
+          formattedTotal = (totalAmount / personCount).toStringAsFixed(2);
+        }
 
         AlertDialog dialog = new AlertDialog(
             content: new Text("Total is $formattedTotal per person"));
