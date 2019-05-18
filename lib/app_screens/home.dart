@@ -224,7 +224,14 @@ class BillSplitterState extends State<BillSplitter> {
             summarySubtotal
           ]));
 
-    AppBar appBar = new AppBar(title: new Text("BillSplitter"), backgroundColor: Colors.red,);
+    AppBar appBar = new AppBar(
+      title: Row(
+        children: <Widget>[
+          Icon(Icons.attach_money),
+          Text("BillSplitter"),
+        ],
+      ),
+      backgroundColor: Colors.red,);
 
     Scaffold scaffold = new Scaffold(appBar: appBar, body: container);
     return scaffold;
