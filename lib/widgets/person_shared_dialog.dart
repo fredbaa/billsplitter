@@ -1,4 +1,3 @@
-import 'package:billsplitter/app_screens/split_bill_screen.dart';
 import 'package:flutter/material.dart';
 
 class PersonSharedDialogState extends State<PersonSharedDialog> {
@@ -13,18 +12,19 @@ class PersonSharedDialogState extends State<PersonSharedDialog> {
   @override
   Widget build(BuildContext context) {
     Container dialogCheckboxes = Container(
-      child: Column(children: widget.peopleSharing.map((personItem) {
-        String personName = personItem.name;
+      child: Column(children: widget.peopleSharing.keys.map((personIndex) {
+        Map personItem = widget.peopleSharing[personIndex];
+        String personName = personItem['name'];
         return new CheckboxListTile(
           title: Text(personName),
-          value: tempSelectedPeopleSharing.contains(personItem.index),
+          value: tempSelectedPeopleSharing.contains(personIndex),
           onChanged: (bool value) {
             setState(() {
               if (value) {
-                tempSelectedPeopleSharing.add(personItem.index);
+                tempSelectedPeopleSharing.add(personIndex);
               }
               else {
-                tempSelectedPeopleSharing.remove(personItem.index);
+                tempSelectedPeopleSharing.remove(personIndex);
               }
             });
 
@@ -62,7 +62,7 @@ class PersonSharedDialogState extends State<PersonSharedDialog> {
 }
 
 class PersonSharedDialog extends StatefulWidget {
-  final List<BillPersonItem> peopleSharing;
+  final Map peopleSharing;
   final Set<int> selectedPeopleSharing;
   final ValueChanged<Set<int>> onSelectedPeopleSharing;
   final ValueChanged<bool> onConfirmAdd;
