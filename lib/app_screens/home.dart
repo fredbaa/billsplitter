@@ -237,7 +237,7 @@ class BillSplitterState extends State<BillSplitter> {
       ),
       backgroundColor: Colors.red,);
 
-    Scaffold scaffold = new Scaffold(appBar: appBar, body: container);
+    Scaffold scaffold = new Scaffold(appBar: appBar, body: SingleChildScrollView(child: container,));
     return scaffold;
   }
 }

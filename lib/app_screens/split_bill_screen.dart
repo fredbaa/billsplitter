@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/person_shared_dialog.dart';
 
 class SplitItem {
   final String name;
@@ -10,6 +11,7 @@ class SplitItem {
 
 class SplitBillScreenState extends State<SplitBillScreen> {
   Set<String> whoSharedItem = new Set<String>();
+  double itemAmount = 0.0;
   double remainingAmount;
 
   @override
@@ -39,49 +41,57 @@ class SplitBillScreenState extends State<SplitBillScreen> {
         labelStyle: TextStyle(fontSize: 20),
         suffix: IconButton(
           icon: Icon(Icons.add), 
+          color: Colors.red,
           onPressed: () {
-            SimpleDialog dialog = SimpleDialog(
-              title: Text("Who shared this item?"),
-              children: splitItems.map((element) {
-                return new CheckboxListTile(
-                  title: Text(element.name),
-                  value: whoSharedItem.contains(element.name),
-                  onChanged: (bool value) {
-                    setState(() {
-                      if(value) {
-                        whoSharedItem.add(element.name);
-                      }
-                      else {
-                        whoSharedItem.remove(element.name);
-                      }
-                      print(whoSharedItem);
-                    });
-                  },
-                );
-              }).toList(),
-            );
-            showDialog(context: context, builder: (BuildContext context) => dialog);
+            showDialog(context: context, builder: (BuildContext context) {
+              final List<String> peopleSharing = splitItems.map((element) { return element.name; }).toList();
+              return PersonSharedDialog(
+                peopleSharing: peopleSharing,
+                selectedPeopleSharing: whoSharedItem,
+                onSelectedPeopleSharing: (selectedPeople) {
+                  whoSharedItem = selectedPeople;
+                  print(whoSharedItem);
+                },
+              );
+            });
           },
         )
       ),
       keyboardType: TextInputType.number,
       style: TextStyle(fontSize: 20),
       onChanged: (String value) {
+        setState(() {
+         try {
+           itemAmount = double.parse(value);
+         } 
+         catch(e) {
+           itemAmount = 0.0;
+         }
+        });
       },
     );
 
+
     Container container = new Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(15.0),
         child: new Column(
             children: [
               subTotalText,
               Padding(padding: EdgeInsets.only(top: 15),),
-              itemField,
+              Container( 
+                alignment: Alignment(0.0, 0.0),
+                child: Row(children: <Widget>[
+                  Expanded( 
+                    flex: 10,
+                    child: itemField,
+                  ),
+                ],),
+              ),
             ]));
 
     AppBar appBar = new AppBar(title: new Text("Split by person"), backgroundColor: Colors.red,);
 
-    Scaffold scaffold = new Scaffold(appBar: appBar, body: container);
+    Scaffold scaffold = new Scaffold(appBar: appBar, body: SingleChildScrollView(child: container,));
     return scaffold;
   }
 }
