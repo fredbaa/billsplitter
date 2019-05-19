@@ -6,6 +6,7 @@ class SplitBillScreenState extends State<SplitBillScreen> {
   final List billItems = new List();
   double itemAmount = 0.0;
   double remainingAmount = 0.0;
+  String itemErrorText = "";
 
   final TextEditingController _itemTextFieldController = new TextEditingController();
 
@@ -35,16 +36,16 @@ class SplitBillScreenState extends State<SplitBillScreen> {
     
     print('widget building');
 
-    double computeAmountToAdd() {
-      var serviceCharge = itemAmount * (serviceChargeAmount/100);
-      var taxCharge = (itemAmount + serviceCharge) * (taxAmount/100);
-      return (itemAmount + serviceCharge + taxCharge);
+    double computeAmountToAdd(amountToCompute) {
+      var serviceCharge = amountToCompute * (serviceChargeAmount/100);
+      var taxCharge = (amountToCompute + serviceCharge) * (taxAmount/100);
+      return (amountToCompute + serviceCharge + taxCharge);
     }
 
     void updateAmounts() {
       print('updating amounts');
       setState(() {
-        var computedCharge = computeAmountToAdd();
+        var computedCharge = computeAmountToAdd(itemAmount);
         var amountPerPerson = computedCharge / whoSharedItem.length;
 
         whoSharedItem.forEach((personIndex) {
@@ -68,18 +69,28 @@ class SplitBillScreenState extends State<SplitBillScreen> {
     }
 
     void removeLastBillItem(){
-      setState(() {
-        var lastItem = this.billItems.removeLast(); 
-        remainingAmount += lastItem['amount'];
-        // TODO UPDATE INDIVIDUAL PAYABLES PER PEOPLE
-      });
+      if (this.billItems.length > 0) {
+        setState(() {
+          var lastItem = this.billItems.removeLast();
+          var computedCharge = computeAmountToAdd(lastItem['amount']);
+          var amountPerPerson = computedCharge / lastItem['sharedBy'].length; 
+          remainingAmount += lastItem['amount'];
+
+          print(amountPerPerson);
+          print(lastItem['amount']);
+          
+          lastItem['sharedBy'].forEach((personIndex) {
+            this.billPeople[personIndex]['amount'] -= amountPerPerson;
+          });
+        });
+      }
     }
 
     TextField itemField = new TextField(
       controller: _itemTextFieldController,
       decoration: new InputDecoration(
         labelText: "Receipt Item", 
-        labelStyle: TextStyle(fontSize: 20),
+        labelStyle: TextStyle(fontSize: 25),
         suffix: IconButton(
           icon: Icon(Icons.add), 
           color: Colors.red,
@@ -93,12 +104,13 @@ class SplitBillScreenState extends State<SplitBillScreen> {
                   print(whoSharedItem);
                 },
                 onConfirmAdd: (hasConfirmed) {
-                  if(hasConfirmed && whoSharedItem.length >= 1 && itemAmount > 0) {
+                  if(hasConfirmed && whoSharedItem.length >= 1 && itemAmount > 0 && itemAmount <= remainingAmount) {
                     print('confirmed');
+                    itemErrorText = "";
                     updateAmounts();
                   }
                   else {
-                    print("Check the item value or select at least one person who will be paying for this shit.");
+                    itemErrorText = "Check the item value or select at least one person who will be paying for this shit.";
                   }
                 }
               );
@@ -137,7 +149,7 @@ class SplitBillScreenState extends State<SplitBillScreen> {
           var person = this.billPeople[personIndex];
           var personField = TextField(
             decoration: InputDecoration(border: InputBorder.none, hintText: person['name']),
-            style: TextStyle(fontSize: 23, color: Colors.black, height:2), 
+            style: TextStyle(fontSize: 25, color: Colors.black, height: 1), 
             cursorColor: Colors.blueAccent,
             enableInteractiveSelection: true,
             onChanged: (value) {
@@ -153,7 +165,7 @@ class SplitBillScreenState extends State<SplitBillScreen> {
 
           var personPayable = Text(
             this.billPeople[personIndex]['amount'].toStringAsFixed(2), 
-            style: TextStyle(fontSize: 23, color: Colors.black, height: 2),
+            style: TextStyle(fontSize: 25, color: Colors.black, height: 1),
             );
 
           return Row(children: <Widget>[
@@ -164,7 +176,15 @@ class SplitBillScreenState extends State<SplitBillScreen> {
       ),
     );
 
-    Opacity undoItemWidget = Opacity(
+    Opacity helpText = Opacity(
+      opacity: 1,
+      child: Text(itemErrorText,
+        textAlign: TextAlign.left,
+        style: TextStyle(fontSize: 15, color: Colors.redAccent),
+      ),
+    );
+
+    var undoItemWidget = Opacity(
       opacity: this.billItems.length == 0 ? 0 : 1,
       child: IconButton(
         icon: Icon(Icons.undo),
@@ -181,12 +201,15 @@ class SplitBillScreenState extends State<SplitBillScreen> {
             Text("Remaining subtotal is " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20)),
             Padding(padding: EdgeInsets.only(top: 15),),
             itemFieldContainer,
-            Padding(padding: EdgeInsets.only(top: 30),),
+            Padding(padding: EdgeInsets.only(top: 5),),
+            helpText,
+            Padding(padding: EdgeInsets.only(top: 7),),
             payablesContainer,
+            Padding(padding: EdgeInsets.only(top: 3),)
           ]));
 
     AppBar appBar = new AppBar(
-      title: new Text("Split by person"), 
+      title: new Text((widget.splitData['billName'] ?? "Untitled") + " Bill"), 
       backgroundColor: Colors.red,
       actions: <Widget>[
         undoItemWidget,

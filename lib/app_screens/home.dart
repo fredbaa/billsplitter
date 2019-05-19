@@ -63,6 +63,8 @@ class BillSplitterState extends State<BillSplitter> {
 
     void _startSplitByPerson() {
       var splitData = {
+        "billName": billName,
+        "totalAmount": totalAmount,
         "subTotalAmount": subTotalAmount,
         "serviceChargeAmount": serviceChargeAmount,
         "taxAmount": taxAmount,
@@ -185,15 +187,15 @@ class BillSplitterState extends State<BillSplitter> {
     Container summarySubtotal = Container(
       child: Column(
         children: <Widget>[
-          Text("Name: $billName", style: TextStyle(fontSize: 18),),
-          Padding(padding: EdgeInsets.only(top: 3.0),),
-          Text("Subtotal: " + subTotalAmount.toStringAsFixed(2), style: TextStyle(fontSize: 18),),
-          Padding(padding: EdgeInsets.only(top: 3.0),),
-          Text("Service Charge: " + computeServiceCharge().toStringAsFixed(2), style: TextStyle(fontSize: 18),),
-          Padding(padding: EdgeInsets.only(top: 3.0),),
-          Text("Tax: " + computeTax().toStringAsFixed(2), style: TextStyle(fontSize: 18),),
-          Padding(padding: EdgeInsets.only(top: 3.0),),
-          Text("Total: " + totalAmount.toStringAsFixed(2), style: TextStyle(fontSize: 18),),
+          Text("Name: $billName", style: TextStyle(fontSize: 20),),
+          Padding(padding: EdgeInsets.only(top: 5.0),),
+          Text("Subtotal: " + subTotalAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20),),
+          Padding(padding: EdgeInsets.only(top: 5.0),),
+          Text("Service Charge: " + computeServiceCharge().toStringAsFixed(2), style: TextStyle(fontSize: 20),),
+          Padding(padding: EdgeInsets.only(top: 5.0),),
+          Text("Tax: " + computeTax().toStringAsFixed(2), style: TextStyle(fontSize: 20),),
+          Padding(padding: EdgeInsets.only(top: 5.0),),
+          Text("Total: " + totalAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20),),
         ],),
     );
 
