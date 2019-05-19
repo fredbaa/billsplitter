@@ -32,6 +32,7 @@ class SplitBillScreenState extends State<SplitBillScreen> {
   Widget build(BuildContext context) {
     final double serviceChargeAmount = widget.splitData["serviceChargeAmount"];
     final double taxAmount = widget.splitData["taxAmount"];
+    final double subtotalAmount = widget.splitData["subTotalAmount"];
     Set<int> whoSharedItem = new Set<int>();
     
     print('widget building');
@@ -198,14 +199,16 @@ class SplitBillScreenState extends State<SplitBillScreen> {
       padding: const EdgeInsets.all(15.0),
       child: new Column(
           children: <Widget>[
-            Text("Remaining subtotal is " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20)),
-            Padding(padding: EdgeInsets.only(top: 15),),
             itemFieldContainer,
             Padding(padding: EdgeInsets.only(top: 5),),
             helpText,
             Padding(padding: EdgeInsets.only(top: 7),),
             payablesContainer,
-            Padding(padding: EdgeInsets.only(top: 3),)
+            Padding(padding: EdgeInsets.only(top: 7),),
+            Text("Remaining cost to split: " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.red, fontWeight: FontWeight.bold)),
+            Text("Service charge: " + (subtotalAmount * (serviceChargeAmount/100)).toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
+            Text("Tax: " + ((subtotalAmount * (serviceChargeAmount/100)) * (taxAmount/100)).toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
+            Text("Total bill: " + widget.splitData["totalAmount"].toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
           ]));
 
     AppBar appBar = new AppBar(
