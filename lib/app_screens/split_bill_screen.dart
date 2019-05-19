@@ -132,7 +132,36 @@ class SplitBillScreenState extends State<SplitBillScreen> {
     
     Container payablesContainer = Container( 
       alignment: Alignment(0.0, 0.0),
-      child: Text("TODO Payables"),
+      child: Column( 
+        children: this.billPeople.keys.map((personIndex) {
+          var person = this.billPeople[personIndex];
+          var personField = TextField(
+            decoration: InputDecoration(border: InputBorder.none, hintText: person['name']),
+            style: TextStyle(fontSize: 23, color: Colors.black, height:2), 
+            cursorColor: Colors.blueAccent,
+            enableInteractiveSelection: true,
+            onChanged: (value) {
+              setState(() {
+                var newName = value;
+
+                if (newName.trim().length == 0)
+                  newName = "Person " + (personIndex + 1).toString();
+
+                this.billPeople[personIndex]['name'] = newName;
+              });
+            },);
+
+          var personPayable = Text(
+            this.billPeople[personIndex]['amount'].toStringAsFixed(2), 
+            style: TextStyle(fontSize: 23, color: Colors.black, height: 2),
+            );
+
+          return Row(children: <Widget>[
+            Expanded(child: personField, flex: 7),
+            Expanded(child: personPayable, flex: 3,)
+          ],);
+        }).toList(),
+      ),
     );
 
     Opacity undoItemWidget = Opacity(
@@ -149,10 +178,10 @@ class SplitBillScreenState extends State<SplitBillScreen> {
       padding: const EdgeInsets.all(15.0),
       child: new Column(
           children: <Widget>[
-            Text("Subtotal is " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20)),
+            Text("Remaining subtotal is " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20)),
             Padding(padding: EdgeInsets.only(top: 15),),
             itemFieldContainer,
-            Padding(padding: EdgeInsets.only(top: 15),),
+            Padding(padding: EdgeInsets.only(top: 30),),
             payablesContainer,
           ]));
 
