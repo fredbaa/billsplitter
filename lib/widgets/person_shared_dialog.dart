@@ -1,7 +1,9 @@
+import 'package:billsplitter/app_screens/split_bill_screen.dart';
 import 'package:flutter/material.dart';
 
 class PersonSharedDialogState extends State<PersonSharedDialog> {
-  Set<String> tempSelectedPeopleSharing;
+  Set<int> tempSelectedPeopleSharing;
+  bool confirmedAdd = false;
 
   void initState() {
     tempSelectedPeopleSharing = widget.selectedPeopleSharing;
@@ -11,17 +13,18 @@ class PersonSharedDialogState extends State<PersonSharedDialog> {
   @override
   Widget build(BuildContext context) {
     Container dialogCheckboxes = Container(
-      child: Column(children: widget.peopleSharing.map((personName) {
+      child: Column(children: widget.peopleSharing.map((personItem) {
+        String personName = personItem.name;
         return new CheckboxListTile(
           title: Text(personName),
-          value: tempSelectedPeopleSharing.contains(personName),
+          value: tempSelectedPeopleSharing.contains(personItem.index),
           onChanged: (bool value) {
             setState(() {
               if (value) {
-                tempSelectedPeopleSharing.add(personName);
+                tempSelectedPeopleSharing.add(personItem.index);
               }
               else {
-                tempSelectedPeopleSharing.remove(personName);
+                tempSelectedPeopleSharing.remove(personItem.index);
               }
             });
 
@@ -34,7 +37,7 @@ class PersonSharedDialogState extends State<PersonSharedDialog> {
     
     AlertDialog alertDialog = AlertDialog(
       title: Text("Who shared this item?"),
-      content: dialogCheckboxes,
+      content: SingleChildScrollView(child: dialogCheckboxes,),
       actions: <Widget>[
         MaterialButton(
           child: Text("Cancel"),
@@ -47,7 +50,8 @@ class PersonSharedDialogState extends State<PersonSharedDialog> {
           color: Colors.red,
           textColor: Colors.white,
           onPressed: () {
-
+            widget.onConfirmAdd(true);
+            Navigator.pop(context);
           },
         )
       ],
@@ -58,14 +62,16 @@ class PersonSharedDialogState extends State<PersonSharedDialog> {
 }
 
 class PersonSharedDialog extends StatefulWidget {
-  final List<String> peopleSharing;
-  final Set<String> selectedPeopleSharing;
-  final ValueChanged<Set<String>> onSelectedPeopleSharing;
+  final List<BillPersonItem> peopleSharing;
+  final Set<int> selectedPeopleSharing;
+  final ValueChanged<Set<int>> onSelectedPeopleSharing;
+  final ValueChanged<bool> onConfirmAdd;
 
   PersonSharedDialog({
     this.peopleSharing,
     this.selectedPeopleSharing,
-    this.onSelectedPeopleSharing
+    this.onSelectedPeopleSharing,
+    this.onConfirmAdd
   });
 
   @override

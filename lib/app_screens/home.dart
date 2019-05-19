@@ -50,7 +50,7 @@ class BillSplitterState extends State<BillSplitter> {
         billName = "Untitled";
         serviceChargeAmount = 0.0;
         taxAmount = 0.0;
-        personCount = 0;
+        personCount = 1;
         totalAmount = 0;
 
         _billNameTextFieldController.clear();

@@ -1,41 +1,102 @@
 import 'package:flutter/material.dart';
 import '../widgets/person_shared_dialog.dart';
 
-class SplitItem {
-  final String name;
-  final double cost;
+class BillPersonItem {
   final int index;
+  final String name;
+  double toPayAmount;
 
-  SplitItem(this.name, this.cost, this.index);
+  BillPersonItem(this.name, this.index);
+
+  set updateAmount(double amount) {
+    this.toPayAmount = amount;
+  }
+
+  get currentAmount {
+    if (this.toPayAmount == null) {
+      return 0;
+    }
+    else {
+      return this.toPayAmount;
+    }
+  }
+}
+
+class BillItem {
+  final int billPersonId;
+  final double amount;
+
+  BillItem(this.billPersonId, this.amount);
 }
 
 class SplitBillScreenState extends State<SplitBillScreen> {
-  Set<String> whoSharedItem = new Set<String>();
   double itemAmount = 0.0;
-  double remainingAmount;
+
+  final TextEditingController _itemTextFieldController = new TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _itemTextFieldController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Set<SplitItem> splitItems = Set<SplitItem>();
+    final List<List<BillItem>> billItems = new List<List<BillItem>>();
+    Set<int> whoSharedItem = new Set<int>();
     double subTotalAmount = widget.splitData["subTotalAmount"];
     final double serviceChargeAmount = widget.splitData["serviceChargeAmount"];
     final double taxAmount = widget.splitData["taxAmount"];
-    final int personCount = widget.splitData["personCount"];
-    remainingAmount = subTotalAmount;
+    double remainingAmount = subTotalAmount;
 
-    String formattedSubTotalAmount = subTotalAmount.toStringAsFixed(2);
-
-    for(var i=0; i < personCount; i++) {
-      String name = "Person " + (i+1).toString();
-      splitItems.add(SplitItem(name, 0, i),);
+    double computeAmountToAdd() {
+      var serviceCharge = itemAmount * (serviceChargeAmount/100);
+      var taxCharge = (itemAmount + serviceCharge) * (taxAmount/100);
+      print(itemAmount);
+      print(serviceCharge);
+      print(taxCharge);
+      return (itemAmount + serviceCharge + taxCharge);
     }
 
-    Text subTotalText = Text(
-      "Subtotal is $formattedSubTotalAmount",
-      style: TextStyle(fontSize: 20)
-    );
+    void updateAmounts() {
+      print('updating amounts');
+      setState(() {
+        List<BillItem> tempBillItems = List<BillItem>();
+        double amountToCharge = (computeAmountToAdd() / whoSharedItem.length);
+
+        var newItems = widget.billPeopleItems.map((billPersonItem) {
+          if (whoSharedItem.contains(billPersonItem.index)) {
+            billPersonItem.updateAmount = billPersonItem.currentAmount + amountToCharge;
+            BillItem billItem = BillItem(billPersonItem.index, amountToCharge);
+            tempBillItems.add(billItem);
+          }
+
+          return billPersonItem;
+        }).toList();
+        widget.billPeopleItems.replaceRange(0, widget.billPeopleItems.length-1, newItems);
+
+        billItems.add(tempBillItems);
+
+        print("number of people items:");
+        print(widget.billPeopleItems.length);
+        print("---");
+        print(tempBillItems.map((a) => a.amount));
+        print(billItems.map((a) => a.map((b) => b.amount)));
+
+        itemAmount = 0.0;
+        whoSharedItem = Set<int>(); 
+      });
+
+      _itemTextFieldController.clear();
+    }
 
     TextField itemField = new TextField(
+      controller: _itemTextFieldController,
       decoration: new InputDecoration(
         labelText: "Receipt Item", 
         labelStyle: TextStyle(fontSize: 20),
@@ -44,14 +105,22 @@ class SplitBillScreenState extends State<SplitBillScreen> {
           color: Colors.red,
           onPressed: () {
             showDialog(context: context, builder: (BuildContext context) {
-              final List<String> peopleSharing = splitItems.map((element) { return element.name; }).toList();
               return PersonSharedDialog(
-                peopleSharing: peopleSharing,
+                peopleSharing: widget.billPeopleItems,
                 selectedPeopleSharing: whoSharedItem,
                 onSelectedPeopleSharing: (selectedPeople) {
                   whoSharedItem = selectedPeople;
                   print(whoSharedItem);
                 },
+                onConfirmAdd: (hasConfirmed) {
+                  if(hasConfirmed && whoSharedItem.length >= 1 && itemAmount > 0) {
+                    print('confirmed');
+                    updateAmounts();
+                  }
+                  else {
+                    print("Check the item value or select at least one person who will be paying for this shit.");
+                  }
+                }
               );
             });
           },
@@ -76,7 +145,7 @@ class SplitBillScreenState extends State<SplitBillScreen> {
         padding: const EdgeInsets.all(15.0),
         child: new Column(
             children: [
-              subTotalText,
+              Text("Subtotal is " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20)),
               Padding(padding: EdgeInsets.only(top: 15),),
               Container( 
                 alignment: Alignment(0.0, 0.0),
@@ -97,9 +166,15 @@ class SplitBillScreenState extends State<SplitBillScreen> {
 }
 
 class SplitBillScreen extends StatefulWidget {
+  final List<BillPersonItem> billPeopleItems = List<BillPersonItem>();
   final Map splitData;
 
-  SplitBillScreen({Key key, @required this.splitData}) : super(key: key);
+  SplitBillScreen({this.splitData}) {
+    for(var i=0; i < splitData['personCount']; i++) {
+      String name = "Person " + (i+1).toString();
+      this.billPeopleItems.add(BillPersonItem(name, i),);
+    }
+  }
 
   @override
   SplitBillScreenState createState() => SplitBillScreenState();
