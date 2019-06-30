@@ -173,7 +173,7 @@ class BillSplitterState extends State<BillSplitter> {
 
 
     MaterialButton splitByPersonButton = new MaterialButton(
-      child: new Text("Split By Person"),
+      child: new Text("Split by pax"),
       color: Colors.red,
       textColor: Colors.white,
       onPressed: _startSplitByPerson);
@@ -187,7 +187,7 @@ class BillSplitterState extends State<BillSplitter> {
     Container summarySubtotal = Container(
       child: Column(
         children: <Widget>[
-          Text("Name: $billName", style: TextStyle(fontSize: 20),),
+          Text("Names: $billName", style: TextStyle(fontSize: 20),),
           Padding(padding: EdgeInsets.only(top: 5.0),),
           Text("Subtotal: " + subTotalAmount.toStringAsFixed(2), style: TextStyle(fontSize: 20),),
           Padding(padding: EdgeInsets.only(top: 5.0),),
@@ -211,17 +211,11 @@ class BillSplitterState extends State<BillSplitter> {
             Container(
               alignment: Alignment(0.0, 0.0),
               child: Row(children: <Widget>[
-                new Expanded(child: Container(),),
-                calculateEquallyButton,
-                Padding(
-                  padding: EdgeInsets.only(left: 5.0),
-                ), 
-                splitByPersonButton,
-                Padding(
-                  padding: EdgeInsets.only(left: 5.0),
-                ), 
-                clearButton,
-                new Expanded(child: Container(),),
+                Expanded(child: calculateEquallyButton, flex: 3,),
+                Padding(padding: EdgeInsets.only(left: 3),),
+                Expanded(child: splitByPersonButton, flex: 3,),
+                Padding(padding: EdgeInsets.only(left: 3),),
+                Expanded(child: clearButton, flex: 2,),
               ],),
             ),
             Padding(

@@ -206,8 +206,9 @@ class SplitBillScreenState extends State<SplitBillScreen> {
             payablesContainer,
             Padding(padding: EdgeInsets.only(top: 7),),
             Text("Remaining cost to split: " + remainingAmount.toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.red, fontWeight: FontWeight.bold)),
+            Text("Subtotal: " + (subtotalAmount).toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
             Text("Service charge: " + (subtotalAmount * (serviceChargeAmount/100)).toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
-            Text("Tax: " + ((subtotalAmount * (serviceChargeAmount/100)) * (taxAmount/100)).toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
+            Text("Tax: " + (((subtotalAmount * (serviceChargeAmount/100)) + subtotalAmount) * (taxAmount/100)).toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
             Text("Total bill: " + widget.splitData["totalAmount"].toStringAsFixed(2), style: TextStyle(fontSize: 23, color: Colors.black, fontWeight: FontWeight.bold)),
           ]));
 
